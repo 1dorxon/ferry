@@ -96,7 +96,8 @@ than pointing builds at `ferry.luitlabs.in`.
      needs a secure context.
 2. **Android.** Change the `applicationId`, app name and icon. Point the server
    URL at your host with the Gradle property `bdServer` (in
-   `gradle.properties`, or `-PbdServer=https://your.host`). Build with your own keystore: `native-android/build.sh`
+   `gradle.properties`, or `-PbdServer=https://your.host`). Until you do, builds
+   use the placeholder `https://ferry.example` and connect nowhere. Build with your own keystore: `native-android/build.sh`
    reads `browserdrop-android.jks` and `browserdrop-android.env`
    (`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`) from `$FERRY_SECRETS`.
 3. **Chrome extension.** Set your server in `extension/config.js` and the

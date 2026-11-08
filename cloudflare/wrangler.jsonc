@@ -9,7 +9,9 @@
   "name": "browserdrop",
   "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
-  "workers_dev": true,
+  // No *.workers.dev address: it would bypass the zones' per-IP rate limits
+  // (ferry/drop.dorxon.com, ferry.luitlabs.in). Clients only use the hostnames.
+  "workers_dev": false,
   // Hostnames: ferry.luitlabs.in (the address since 2026-10-26), ferry.dorxon.com
   // (forwards its homepage to it, still serves signalling for older builds) and
   // drop.dorxon.com (the original, kept for the old Android TWA). Each is a zone

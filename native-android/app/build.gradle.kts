@@ -31,7 +31,7 @@ android {
         // WebRTC's native library is ~12 MB per CPU type. ARM covers phones (and
         // x86 Chromebooks run ARM apps); Play delivers only the one a device needs.
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
-        buildConfigField("String", "SERVER", "\"${project.findProperty("bdServer") ?: "https://ferry.luitlabs.in"}\"")
+        buildConfigField("String", "SERVER", "\"${project.findProperty("bdServer") ?: "https://ferry.example"}\"")
     }
 
     buildTypes {
