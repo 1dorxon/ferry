@@ -1,0 +1,798 @@
+/* Ferry (formerly BrowserDrop) — airy, Apple-ecosystem look.
+ *
+ * Layout: an AirDrop-style radar. You sit in the middle as a glass orb, nearby
+ * devices orbit around you, and a transfer draws a progress ring around the
+ * recipient. Around it: frosted-glass surfaces over a slow aurora, the system
+ * font (real San Francisco on Apple devices), continuous large radii, and the
+ * system blue. Imagery (logo, orb, device renders) is generated, not drawn.
+ *
+ * Finish, shared with the Android app and the Chrome panel (Higgsfield design
+ * study, store/design/): no soft drop shadows; surfaces and buttons have a
+ * hairline edge lit from above; buttons are bevelled rounded rectangles, not
+ * pills; numbers are monospace. Light / dark / automatic: data-theme on <html>.
+ */
+
+:root {
+  --bg: #f6f5f2;
+  --fg: #1c1c1e;
+  --fg-2: #6b6b70;
+  --fg-3: #8e8e93;
+  --card: #fff;
+  --edge-top: rgba(0, 0, 0, .06);
+  --edge-bottom: rgba(0, 0, 0, .14);
+  --accent-face: #1f80e6;
+  --accent-line: rgba(0, 113, 227, .28);
+  --glass: rgba(255, 255, 255, .58);
+  --glass-strong: rgba(255, 255, 255, .78);
+  --stroke: rgba(0, 0, 0, .07);
+  --stroke-strong: rgba(0, 0, 0, .1);
+  --fill: rgba(120, 120, 128, .12);
+  --fill-2: rgba(120, 120, 128, .2);
+  --accent: #0071e3;
+  --accent-2: #2997ff;
+  --accent-tint: rgba(0, 113, 227, .1);
+  --ok: #248a3d;
+  --ok-dot: #34c759;
+  --err: #d70015;
+  --shadow: 0 1px 1px rgba(0, 0, 0, .03), 0 8px 30px rgba(0, 0, 0, .07);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .04), 0 18px 46px rgba(0, 0, 0, .12);
+  --aurora-1: rgba(120, 180, 255, .55);
+  --aurora-2: rgba(255, 170, 214, .38);
+  --aurora-3: rgba(140, 236, 220, .42);
+  --ring: rgba(0, 113, 227, .16);
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+  --r-btn: 10px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter",
+          "Segoe UI Variable Text", system-ui, sans-serif;
+  /* The radar takes the height the rest of the page leaves (--below, measured
+     by app.js), so the whole page fits one screen; --vh is the visible height
+     on phones. */
+  --vh: 100vh;
+  --below: 330px;
+  --stage: clamp(340px, min(92vw, var(--vh) - var(--below)), 560px);
+  --stage-ar: 1;
+  --rx: calc(var(--stage) * .37);
+  --ry: calc(var(--stage) * .37);
+}
+/* Dark: automatically when the system is dark (unless forced light), or when forced. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0b0c;
+    --card: #161618;
+    --edge-top: rgba(255, 255, 255, .16);
+    --edge-bottom: rgba(255, 255, 255, .06);
+    --accent-face: #2891ff;
+    --accent-line: rgba(10, 132, 255, .4);
+    --fg: #f5f5f7;
+    --fg-2: #a1a1a6;
+    --fg-3: #86868b;
+    --glass: rgba(30, 30, 34, .5);
+    --glass-strong: rgba(44, 44, 48, .72);
+    --stroke: rgba(255, 255, 255, .08);
+    --stroke-strong: rgba(255, 255, 255, .14);
+    --fill: rgba(120, 120, 128, .24);
+    --fill-2: rgba(120, 120, 128, .36);
+    --accent: #0a84ff;
+    --accent-2: #64d2ff;
+    --accent-tint: rgba(10, 132, 255, .18);
+    --ok: #30d158;
+    --ok-dot: #30d158;
+    --err: #ff453a;
+    --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 10px 34px rgba(0, 0, 0, .45);
+    --shadow-lift: 0 2px 6px rgba(0, 0, 0, .4), 0 20px 50px rgba(0, 0, 0, .6);
+    --aurora-1: rgba(40, 90, 220, .5);
+    --aurora-2: rgba(150, 50, 140, .34);
+    --aurora-3: rgba(20, 140, 150, .36);
+    --ring: rgba(10, 132, 255, .22);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0b0c;
+  --card: #161618;
+  --edge-top: rgba(255, 255, 255, .16);
+  --edge-bottom: rgba(255, 255, 255, .06);
+  --accent-face: #2891ff;
+  --accent-line: rgba(10, 132, 255, .4);
+  --fg: #f5f5f7;
+  --fg-2: #a1a1a6;
+  --fg-3: #86868b;
+  --glass: rgba(30, 30, 34, .5);
+  --glass-strong: rgba(44, 44, 48, .72);
+  --stroke: rgba(255, 255, 255, .08);
+  --stroke-strong: rgba(255, 255, 255, .14);
+  --fill: rgba(120, 120, 128, .24);
+  --fill-2: rgba(120, 120, 128, .36);
+  --accent: #0a84ff;
+  --accent-2: #64d2ff;
+  --accent-tint: rgba(10, 132, 255, .18);
+  --ok: #30d158;
+  --ok-dot: #30d158;
+  --err: #ff453a;
+  --shadow: 0 1px 1px rgba(0, 0, 0, .3), 0 10px 34px rgba(0, 0, 0, .45);
+  --shadow-lift: 0 2px 6px rgba(0, 0, 0, .4), 0 20px 50px rgba(0, 0, 0, .6);
+  --aurora-1: rgba(40, 90, 220, .5);
+  --aurora-2: rgba(150, 50, 140, .34);
+  --aurora-3: rgba(20, 140, 150, .36);
+  --ring: rgba(10, 132, 255, .22);
+}
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+@supports (height: 100dvh) { :root { --vh: 100dvh; } }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  min-height: 100vh; min-height: 100dvh;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font); font-size: 15px; line-height: 1.47;
+  letter-spacing: -.01em;
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; }
+b { font-weight: 600; }
+
+/* ---------------------------------------------------------------- aurora */
+
+.aurora { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.aurora i {
+  position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
+  filter: blur(90px); opacity: .9; will-change: transform;
+}
+.aurora i:nth-child(1) { background: var(--aurora-1); top: -30vmax; left: -18vmax; animation: drift1 26s ease-in-out infinite alternate; }
+.aurora i:nth-child(2) { background: var(--aurora-2); top: -12vmax; right: -30vmax; animation: drift2 32s ease-in-out infinite alternate; }
+.aurora i:nth-child(3) { background: var(--aurora-3); bottom: -40vmax; left: 10vmax; animation: drift3 38s ease-in-out infinite alternate; }
+@keyframes drift1 { to { transform: translate(14vmax, 10vmax) scale(1.12); } }
+@keyframes drift2 { to { transform: translate(-12vmax, 14vmax) scale(.92); } }
+@keyframes drift3 { to { transform: translate(-10vmax, -12vmax) scale(1.08); } }
+
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  backdrop-filter: saturate(180%) blur(28px);
+}
+.mono { font-family: var(--mono); letter-spacing: 0; }
+
+/* The lit hairline: lighter on top than below. A masked ::before, so it works
+   on see-through glass as well as on solid buttons. */
+/* (dialog is left out: a modal dialog is position: fixed, which already anchors its ::before) */
+.glass, .sheet, .peer-av, .icon-btn, .row-x, button.ghost, .pill.ghost, .seg, .pair-chip {
+  position: relative;
+}
+.glass::before, .sheet::before, dialog::before, .peer-av::before, .me-icon::before, .icon-btn::before,
+.row-x::before, .dlg-x::before, button.ghost::before, .pill.ghost::before, .seg::before, .pair-chip::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(var(--edge-top), var(--edge-bottom));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+
+/* -------------------------------------------------------------------- nav */
+
+.nav {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(10px + env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) 10px max(20px, env(safe-area-inset-left));
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--stroke);
+}
+.brand { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 600; letter-spacing: -.022em; }
+.brand-mark { width: 28px; height: 28px; border-radius: 7px; box-shadow: 0 1px 3px rgba(0, 0, 0, .15); }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.status {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 13px; color: var(--fg-2); font-weight: 500;
+  padding: 6px 12px; border-radius: 980px; background: var(--fill);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fg-3); flex: none; transition: background .3s, box-shadow .3s; }
+.dot.on { background: var(--ok-dot); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok-dot) 22%, transparent); }
+.dot.off { background: var(--err); }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--card) !important; color: var(--fg-2); border: 0; padding: 0; cursor: pointer;
+  transition: background .2s, color .2s, transform .2s;
+}
+.icon-btn:hover { color: var(--fg); }
+
+/* Light / dark / automatic. The chosen one is raised and filled. */
+.seg { display: flex; padding: 2px; border-radius: var(--r-btn); background: var(--card); }
+.seg button {
+  width: 34px; height: 28px; padding: 0; border-radius: 8px; background: none; color: var(--fg-2);
+  font-size: 13px; font-weight: 600;
+}
+.seg button:hover { background: none; color: var(--fg); }
+.seg button[aria-pressed="true"] { color: #fff; }
+.icon-btn:active { transform: scale(.94); }
+
+/* ----------------------------------------------------------------- layout */
+
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding: 18px max(20px, env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+/* Everything but the radar. One column: it simply flows under the radar. */
+.side { display: contents; }
+.side > .share-banner { order: -1; }
+
+/* ------------------------------------------------------------------ stage */
+
+.stage {
+  position: relative; width: var(--stage); aspect-ratio: var(--stage-ar);
+  margin-top: 4px; margin-bottom: 22px;   /* room for the name of a device at the bottom */
+}
+.rings { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.rings span {
+  position: absolute; width: 36%; aspect-ratio: 1; border-radius: 50%;
+  border: 1.5px solid var(--ring);
+  animation: ripple 4.2s cubic-bezier(.2, .6, .35, 1) infinite;
+  opacity: 0;
+}
+.rings span:nth-child(2) { animation-delay: 1.4s; }
+.rings span:nth-child(3) { animation-delay: 2.8s; }
+@keyframes ripple {
+  0%   { transform: scale(.75); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+/* With company, the radar calms down and just frames the orbit. */
+.stage.populated .rings span { animation-duration: 7s; border-color: color-mix(in srgb, var(--ring) 70%, transparent); }
+
+.me {
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+  display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 2;
+}
+.me-orb {
+  position: relative; width: clamp(96px, 26vw, 124px); aspect-ratio: 1;
+  animation: breathe 6s ease-in-out infinite;
+}
+.orb-img {
+  width: 100%; height: 100%;
+  filter: drop-shadow(0 12px 28px rgba(60, 130, 255, .35)) drop-shadow(0 2px 6px rgba(0, 0, 0, .08));
+}
+@keyframes breathe { 0%, 100% { scale: 1; } 50% { scale: 1.035; } }
+.me-icon {
+  position: absolute; right: -4px; bottom: 2px; width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; overflow: hidden;
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+}
+.me-icon img { width: 78%; height: 78%; object-fit: contain; }
+.me-name { margin-top: 14px; font-size: 17px; font-weight: 600; letter-spacing: -.022em; white-space: nowrap; }
+.me-name[role="button"] { cursor: text; border-radius: 8px; padding: 0 6px; transition: background .2s; }
+.me-name[role="button"]:hover { background: var(--fill); }
+.name-edit {
+  font: inherit; color: inherit; letter-spacing: inherit; text-align: center;
+  width: 13em; max-width: 70vw; padding: 2px 10px; border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--glass-strong); outline: 3px solid var(--accent-tint);
+}
+.me-cap { font-size: 12px; color: var(--fg-3); margin-top: 1px; white-space: nowrap; }
+
+/* ------------------------------------------------------------------ peers */
+
+.peers { position: absolute; inset: 0; z-index: 3; pointer-events: none; }  /* the layer covers the orb; only devices take taps */
+.peer {
+  --a: calc(var(--i) * (360deg / var(--n)) - 60deg);
+  position: absolute;
+  left: calc(50% + cos(var(--a)) * var(--rx));
+  top: calc(50% + sin(var(--a)) * var(--ry));
+  --half: 46px;                       /* half the icon: the orbit runs through its centre */
+  translate: -50% calc(-1 * var(--half));
+  width: 116px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  cursor: pointer; pointer-events: auto; -webkit-tap-highlight-color: transparent;
+  animation: arrive .55s cubic-bezier(.2, .9, .3, 1.25) both;
+  animation-delay: calc(var(--i) * 70ms);
+}
+@keyframes arrive { from { opacity: 0; scale: .6; } to { opacity: 1; scale: 1; } }
+.peer-av {
+  position: relative; width: 92px; height: 92px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: saturate(180%) blur(24px); backdrop-filter: saturate(180%) blur(24px);
+  transition: transform .35s cubic-bezier(.2, .9, .3, 1.2);
+}
+.peer:hover .peer-av { transform: translateY(-4px) scale(1.05); }
+.peer:active .peer-av { transform: scale(.95); transition-duration: .12s; }
+.peer-icon { width: 70%; height: 70%; display: grid; place-items: center; }
+.peer-icon img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .12)); }
+/* AirDrop-style progress ring around the device you are sending to or receiving from. */
+.peer-ring {
+  --p: 0;
+  position: absolute; inset: -7px; border-radius: 50%; opacity: 0;
+  background: conic-gradient(var(--accent) calc(var(--p) * 1turn), var(--fill) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4.5px));
+  transition: opacity .3s;
+}
+.peer.busy .peer-ring { opacity: 1; }
+.peer.busy .peer-av { box-shadow: 0 0 0 6px var(--accent-tint); }
+.peer-name {
+  margin-top: 11px; font-size: 14px; font-weight: 600; letter-spacing: -.016em;
+  max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.peer-sub { font-size: 12px; color: var(--fg-3); }
+.peer.above { translate: -50% calc(-100% + var(--half)); }
+.peer.above .peer-av { order: 1; }
+.peer.above .peer-name { margin-top: 0; }
+.peer.above .peer-sub { margin-bottom: 9px; }
+
+.stage.crowded { aspect-ratio: auto; display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 28px 0 8px; }
+.stage.crowded .rings { display: none; }
+.stage.crowded .me { position: static; translate: none; }
+.stage.crowded .peers {
+  position: static; width: 100%;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 20px 6px; justify-items: center;
+}
+.stage.crowded .peer { position: static; translate: none; width: 104px; }
+.stage.crowded .peer.above .peer-av { order: 0; }
+.stage.crowded .peer.above .peer-name { margin-top: 11px; }
+.stage.crowded .peer.above .peer-sub { margin-bottom: 0; }
+
+/* ------------------------------------------------------------------ hints */
+
+.hint { text-align: center; color: var(--fg-2); font-size: 14px; max-width: 44ch; margin-top: -6px; }
+.hint-title { display: block; color: var(--fg); font-size: 17px; font-weight: 600; letter-spacing: -.022em; margin-bottom: 3px; }
+#peers-empty:not([hidden]) ~ #idle { display: none; }
+
+/* -------------------------------------------------------------- share ask */
+
+.share-banner {
+  width: 100%; display: flex; align-items: center; gap: 14px;
+  padding: 12px 14px 12px 12px; border-radius: 14px;
+  animation: arrive .5s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+.share-glyph {
+  width: 42px; height: 42px; border-radius: var(--r-btn); flex: none;
+  display: grid; place-items: center; color: #fff; border: 1px solid transparent;
+  background:
+    linear-gradient(var(--accent-face), var(--accent)) padding-box,
+    linear-gradient(rgba(255, 255, 255, .28), rgba(0, 0, 0, .18)) border-box,
+    linear-gradient(var(--accent), var(--accent)) border-box;
+}
+.share-text { flex: 1; min-width: 0; }
+.share-title { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.share-sub { font-size: 13px; color: var(--accent); font-weight: 500; }
+.share-sub.err { color: var(--err); }
+
+/* ---------------------------------------------------------------- buttons */
+
+/* Rounded rectangles, not pills. Primary is raised: a lighter face and a
+   bevelled edge (highlight on top, darker lip below). Ghost sits on the
+   surface with the lit hairline. Pressing sinks them a little. */
+button, .pill {
+  font: inherit; font-size: 14px; font-weight: 600; letter-spacing: -.01em;
+  border: 1px solid transparent; cursor: pointer; text-decoration: none; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--r-btn); color: #fff;
+  background:
+    linear-gradient(var(--accent-face), var(--accent)) padding-box,
+    linear-gradient(rgba(255, 255, 255, .28), rgba(0, 0, 0, .18)) border-box,
+    linear-gradient(var(--accent), var(--accent)) border-box;
+  transition: filter .15s, transform .15s, opacity .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.seg button[aria-pressed="true"] {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--accent-face), var(--accent)) padding-box,
+    linear-gradient(rgba(255, 255, 255, .28), rgba(0, 0, 0, .18)) border-box,
+    linear-gradient(var(--accent), var(--accent)) border-box;
+}
+button:hover, .pill:hover { filter: brightness(1.06); }
+button:active, .pill:active { transform: scale(.97); filter: brightness(.92); }
+button.ghost, .pill.ghost { background: var(--card); color: var(--fg); border: 0; padding: 9px 17px; }
+button.ghost:hover, .pill.ghost:hover { background: color-mix(in srgb, var(--card) 92%, var(--fg)); filter: none; }
+button.mini, .pill.mini { font-size: 13px; padding: 5px 13px; }
+button.ghost.mini, .pill.ghost.mini { padding: 6px 14px; }
+button:disabled { opacity: .4; cursor: default; }
+button:focus-visible, .pill:focus-visible, .peer:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+
+/* -------------------------------------------------------------- transfers */
+
+.sheet {
+  width: 100%; border-radius: 16px; padding: 16px 18px 8px;
+  background: var(--glass);
+  -webkit-backdrop-filter: saturate(180%) blur(28px); backdrop-filter: saturate(180%) blur(28px);
+}
+.sheet h2 { font-size: 12px; font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: .08em; padding: 0 4px 6px; }
+.transfers { display: flex; flex-direction: column; }
+.row { padding: 14px 4px; border-top: 1px solid var(--stroke); animation: arrive .4s ease both; }
+.row:first-child { border-top: 0; }
+
+/* icon | name over status | one action slot. Everything under it starts at
+   the name's left edge (48px = 36px icon + 12px gap) on every screen size. */
+.row-top { display: flex; align-items: center; gap: 12px; }
+.row-ic {
+  width: 36px; height: 36px; border-radius: 50%; flex: none;
+  display: grid; place-items: center; color: var(--accent); background: var(--accent-tint);
+}
+.row.done .row-ic { color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+.row.failed .row-ic { color: var(--err); background: color-mix(in srgb, var(--err) 12%, transparent); }
+.row-main { flex: 1; min-width: 0; }
+.row-name {
+  font-size: 15px; font-weight: 600; letter-spacing: -.016em; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.row-sub {
+  font-size: 13px; color: var(--fg-2); line-height: 1.35; margin-top: 1px;
+  font-variant-numeric: tabular-nums;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.row-sub.ok { color: var(--ok); }
+.row-sub.err { color: var(--err); white-space: normal; }
+.row-act { flex: none; display: flex; align-items: center; }
+.row-act:empty { display: none; }
+.row-x {
+  width: 28px; height: 28px; padding: 0; border: 0; border-radius: 8px;
+  background: var(--card) !important; color: var(--fg-2) !important;
+}
+.row-x:hover { color: var(--fg) !important; filter: none; }
+.row.asking .row-x { display: none; }
+
+.row-body { margin-left: 48px; }
+.row-ask { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; max-width: 360px; }
+.row-ask button { padding: 10px 16px; font-size: 15px; font-weight: 600; }
+.track { margin-top: 12px; height: 5px; border-radius: 3px; background: var(--fill); overflow: hidden; }
+.row:not(.active) .track { display: none; }   /* only once bytes are moving */
+.fill {
+  height: 100%; width: 0; border-radius: 3px;
+  background: var(--accent);
+  transition: width .2s linear;
+}
+
+.readout { margin-top: 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.cell { background: var(--fill); border-radius: var(--r-btn); padding: 9px 12px; min-width: 0; }
+.celll { font-size: 10px; color: var(--fg-3); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+.cellv {
+  font-family: var(--mono); font-size: 16px; font-weight: 600; letter-spacing: 0; margin-top: 1px;
+  font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cellv.hot { color: var(--accent); }
+.cellu { font-size: 12px; font-weight: 500; color: var(--fg-3); margin-left: 3px; }
+/* The one-line version of the readout, for phones. */
+.row-stats {
+  display: flex; justify-content: space-between; gap: 8px; margin-top: 7px;
+  font-family: var(--mono); font-size: 11px; color: var(--fg-3); white-space: nowrap;
+}
+.row-stats .hot { color: var(--accent); font-weight: 600; }
+@media (min-width: 601px) { .row-stats { display: none !important; } }
+@media (max-width: 600px) { .readout { display: none !important; } }
+
+a.dl { text-decoration: none; }
+
+/* ---------------------------------------------------------------- pairing */
+
+.pair-prompt {
+  width: 100%; display: flex; align-items: center; gap: 14px;
+  padding: 14px 14px 14px 18px; border-radius: 14px;
+  animation: arrive .5s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+.pair-prompt-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pair-prompt-text b { font-size: 15px; }
+.pair-prompt-text span { font-size: 13px; color: var(--fg-2); }
+.pair-prompt-actions { display: flex; align-items: center; gap: 6px; flex: none; }
+@media (max-width: 480px) {
+  .pair-prompt { flex-direction: column; align-items: stretch; text-align: center; }
+  .pair-prompt-actions { justify-content: center; }
+}
+
+.ext-card { padding-block: 10px; }
+.ext-icon { width: 36px; height: 36px; border-radius: 9px; flex: none; }
+@media (max-width: 480px) { .ext-icon { align-self: center; } }
+
+.pair-line { display: flex; justify-content: center; margin-top: -4px; }
+#pair-prompt:not([hidden]) ~ .pair-line #pair-link { display: none; }   /* the card already offers it */
+button.link {
+  background: none !important; padding: 2px 6px; border-radius: 8px;
+  color: var(--accent); font-size: 13px; font-weight: 500;
+}
+button.link:hover { text-decoration: underline; }
+.pair-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--fg-2); background: var(--card);
+  padding: 4px 6px 4px 12px; border-radius: var(--r-btn);
+}
+.pair-chip b { color: var(--fg); font-family: var(--mono); }
+
+.dlg-body.pair-body { text-align: center; }   /* beats .dlg-body, defined later */
+.pair-code {
+  margin: 4px auto 6px; font-family: var(--mono); font-size: 42px; font-weight: 700; letter-spacing: .04em;
+  color: var(--fg);
+}
+.pair-status { min-height: 20px; font-size: 14px; color: var(--fg-2); }
+.pair-status.ok { color: var(--ok); font-weight: 600; }
+.pair-divider { display: flex; align-items: center; gap: 10px; margin: 20px 0 12px; color: var(--fg-3); font-size: 12px; }
+.pair-divider::before, .pair-divider::after { content: ""; flex: 1; height: 1px; background: var(--stroke-strong); }
+.pair-join { display: flex; gap: 8px; justify-content: center; }
+.pair-join input::placeholder { color: var(--fg-3); }
+.pair-join input {
+  font: 600 20px var(--mono); text-align: center;
+  width: 8.6em; padding: 8px 12px; border-radius: var(--r-btn);
+  border: 1px solid var(--edge-bottom); background: var(--bg); color: var(--fg);
+}
+.pair-join input:focus { outline: 3px solid var(--accent-tint); border-color: var(--accent); }
+.pair-note { margin-top: 16px; font-size: 12px !important; color: var(--fg-3) !important; }
+
+/* -------------------------------------------------------------- clipboard */
+
+.clip-line { display: flex; justify-content: center; margin-top: -8px; }
+.clip-line .pill { font-weight: 500; }
+.text-body textarea {
+  display: block; width: 100%; min-height: 128px; max-height: 40vh; resize: vertical;
+  font: inherit; font-size: 15px; line-height: 1.45; padding: 12px 14px; border-radius: 12px;
+  border: 1px solid var(--edge-bottom); background: var(--bg); color: var(--fg);
+}
+.text-body textarea:focus { outline: 3px solid var(--accent-tint); border-color: var(--accent); }
+.text-body textarea::placeholder { color: var(--fg-3); }
+.text-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+.text-meta span { font-size: 12px; color: var(--fg-3); }
+.text-meta span.err { color: var(--err); }
+.text-to-label { margin: 18px 0 8px; font-size: 12px; font-weight: 600; color: var(--fg-2); text-transform: uppercase; letter-spacing: .08em; }
+.text-to { display: flex; flex-wrap: wrap; gap: 8px; }
+.text-to button { font-weight: 500; }
+.text-to .none { font-size: 14px; color: var(--fg-2); }
+.text-body .dlg-actions { margin-top: 20px; }
+.text-body .dlg-actions .pill { min-width: 8em; }
+/* A text row: the text itself under the name, four lines until tapped. */
+.row-text {
+  /* No bottom padding: a clamped box clips at its padding edge, so padding
+     there would show a sliver of line five. The border gives the space instead. */
+  margin-top: 8px; padding: 10px 12px 0; border-bottom: 10px solid var(--card); border-radius: 10px; background: var(--card);
+  font-size: 14px; line-height: 1.45; color: var(--fg); white-space: pre-wrap; overflow-wrap: anywhere;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; cursor: pointer;
+}
+.row-text.open { display: block; -webkit-line-clamp: none; max-height: 50vh; overflow: auto; cursor: auto; }
+.row.text .row-name { font-weight: 500; }
+
+/* ---------------------------------------------------------------- footer */
+
+.foot {
+  text-align: center; text-wrap: balance;
+  font-size: 12px; color: var(--fg-3); margin-top: 2px; max-width: 72ch;
+}
+.foot svg { display: inline; vertical-align: -2px; margin-right: 4px; }
+
+/* -------------------------------------------------------------- drop zone */
+
+.drop-overlay {
+  position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  display: grid; place-items: center;
+  background: color-mix(in srgb, var(--bg) 45%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+}
+.drop-overlay > div {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 44px 64px; border-radius: 20px;
+  border: 2px dashed color-mix(in srgb, var(--accent) 55%, transparent);
+  background: var(--glass-strong);
+  font-size: 20px; font-weight: 600; letter-spacing: -.02em; color: var(--accent);
+}
+.drop-glyph {
+  width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent-tint);
+}
+
+/* ---------------------------------------------------------------- dialogs */
+
+dialog {
+  margin: auto; border: 0; border-radius: 20px;
+  background: var(--glass-strong); color: var(--fg);
+  -webkit-backdrop-filter: saturate(180%) blur(40px); backdrop-filter: saturate(180%) blur(40px);
+  width: min(460px, calc(100% - 28px)); padding: 30px 28px 24px;
+}
+dialog[open] { animation: sheet .35s cubic-bezier(.2, .9, .3, 1.1) both; }
+@keyframes sheet { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+dialog::backdrop { background: rgba(0, 0, 0, .28); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.dlg-body { max-height: 78vh; overflow-y: auto; text-align: left; }
+.dlg-icon { width: 76px; height: 76px; margin: 2px auto 14px; border-radius: 18px; }
+dialog h3 { font-size: 24px; font-weight: 700; letter-spacing: -.028em; text-align: center; }
+dialog .lede { text-align: center; color: var(--fg-2); font-size: 15px; margin: 6px auto 18px; max-width: 36ch; }
+dialog h4 { font-size: 15px; font-weight: 600; margin: 16px 0 3px; }
+dialog p { font-size: 14px; color: var(--fg-2); }
+dialog p b { color: var(--fg); }
+.dlg-actions { display: flex; justify-content: center; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.dlg-x {
+  position: absolute; top: 14px; right: 14px; z-index: 1;
+  width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px;
+  background: var(--card) !important; color: var(--fg-2) !important;
+}
+.dlg-x:hover { color: var(--fg) !important; filter: none; }
+
+/* ----------------------------------------------------------------- mobile */
+
+@media (max-width: 600px) {
+  /* Taller than wide on phones: an elliptical orbit keeps labels off the orb. */
+  :root { --stage: clamp(min(300px, 94vw), min(94vw, (var(--vh) - var(--below)) / 1.12), 440px); --stage-ar: 1 / 1.12; --rx: calc(var(--stage) * .36); --ry: calc(var(--stage) * .40); }
+  .stage { margin-bottom: 26px; }
+  .stage.populated .cap-hint { display: none; }   /* devices sit where the long caption would reach */
+  .me-orb { width: 88px; }
+  .me-name { font-size: 16px; margin-top: 10px; }
+  .wrap { padding-top: 10px; gap: 14px; }
+  .status { padding: 5px 10px; font-size: 12px; }
+  .peer { width: 92px; --half: 34px; }
+  .peer-av { width: 68px; height: 68px; }
+  .peer-name { font-size: 13px; max-width: 92px; margin-top: 8px; }
+  .peer-sub { font-size: 11px; }
+  .me-icon { width: 32px; height: 32px; right: -6px; }
+  .sheet { padding: 14px 12px 4px; border-radius: 14px; }
+  .drop-overlay > div { padding: 32px 36px; }
+}
+/* Short laptop windows (1366×768 leaves ~650px under Chrome's toolbars):
+   smaller orb and devices, so a smaller radar still keeps them apart. */
+@media (min-width: 601px) and (max-width: 959px) and (max-height: 720px) {
+  :root { --stage: clamp(300px, min(92vw, var(--vh) - var(--below)), 560px); }
+  .wrap { padding-top: 10px; gap: 14px; }
+  .me-orb { width: 100px; }
+  .me-name { margin-top: 10px; }
+  .peer { --half: 38px; }
+  .peer-av { width: 76px; height: 76px; }
+  .peer-name { margin-top: 8px; }
+}
+/* Landscape screens: the radar on the left at full size, the rest in a column on
+   the right that scrolls on its own if the transfer list gets long, so the
+   page itself never does. app.js measures --below differently here. */
+@media (min-width: 760px) and (orientation: landscape) {
+  :root { --side: clamp(300px, 32vw, 420px); --stage: clamp(300px, min(100vw - var(--side) - 120px, var(--vh) - var(--below) - 26px), 560px); }
+  body { display: flex; flex-direction: column; }
+  .wrap {
+    flex: 1; width: 100%; max-width: 1180px;
+    flex-direction: row; justify-content: center; gap: clamp(32px, 5vw, 72px);
+  }
+  .side {
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    width: var(--side); flex: none; padding: 6px;
+    max-height: calc(var(--vh) - var(--below)); overflow-y: auto; overscroll-behavior: contain;
+  }
+  .side > .share-banner { order: 0; }
+  .side .pair-prompt { flex-direction: column; align-items: stretch; text-align: center; }
+  .side .pair-prompt-actions { justify-content: center; }
+  .side .ext-icon { align-self: center; }
+  .side .hint { margin-top: 0; }
+}
+/* Phones: the dot alone carries connection state; the words don't fit beside the brand. */
+@media (max-width: 440px) {
+  .status { padding: 0; width: 34px; height: 34px; justify-content: center; }
+  #me-sub { display: none; }
+}
+
+/* ----------------------------------------------------------------- motion */
+/* One vocabulary: things settle (glide), land (spring) or fade. Everything
+   here goes away under prefers-reduced-motion (the rule at the very end). */
+
+:root { --glide: cubic-bezier(.22, 1, .36, 1); --spring: cubic-bezier(.2, .9, .3, 1.18); }
+
+@keyframes rise { from { opacity: 0; transform: translateY(14px); filter: blur(6px); } }
+@keyframes drop-in { from { opacity: 0; transform: translateY(-12px); } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes orb-in { from { opacity: 0; scale: .5; filter: blur(16px); } }
+@keyframes spin { to { rotate: 1turn; } }
+
+/* Arriving: the bar, then you, then everything else, a beat apart. Only on
+   the first load (html.entering); things revealed later simply rise. */
+.nav { animation: drop-in .8s var(--glide) both; }
+.me-orb { animation: orb-in 1.2s var(--spring) both, breathe 6s ease-in-out 1.2s infinite; }
+.me-name, .me-cap { animation: rise .8s var(--glide) both; }
+.rings { animation: fade 1.6s ease both; }
+.side > *, .foot { animation: rise .7s var(--glide) both; }
+.entering .me-name { animation-delay: .25s; }
+.entering .me-cap { animation-delay: .32s; }
+.entering .rings { animation-delay: .5s; }
+.entering .side > :nth-child(1) { animation-delay: .35s; }
+.entering .side > :nth-child(2) { animation-delay: .41s; }
+.entering .side > :nth-child(3) { animation-delay: .47s; }
+.entering .side > :nth-child(4) { animation-delay: .53s; }
+.entering .side > :nth-child(5) { animation-delay: .59s; }
+.entering .side > :nth-child(6) { animation-delay: .65s; }
+.entering .side > :nth-child(n+7) { animation-delay: .71s; }
+
+/* The orb: a slow highlight wheels across the glass, and it leans a little
+   toward the pointer (--mx/--my, set by app.js on devices with a mouse). */
+.me-orb { translate: calc(var(--mx, 0) * 7px) calc(var(--my, 0) * 7px); transition: translate 1.2s var(--glide); }
+.me-orb::after {
+  content: ""; position: absolute; inset: 9%; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 0deg, transparent 0 62%, rgba(255, 255, 255, .7) 74%, transparent 86%);
+  mix-blend-mode: soft-light; filter: blur(5px);
+  animation: spin 11s linear infinite;
+}
+.aurora { translate: calc(var(--mx, 0) * -18px) calc(var(--my, 0) * -18px); transition: translate 2s var(--glide); }
+
+/* Devices glide to their new place on the orbit when someone joins or leaves,
+   and the one leaving dissolves rather than vanishing. */
+.peer { transition: left .8s var(--glide), top .8s var(--glide); }
+.peer.leaving { animation: depart .5s var(--glide) both; pointer-events: none; }
+@keyframes depart { to { opacity: 0; scale: .4; filter: blur(8px); } }
+.peer:hover .peer-av { box-shadow: 0 14px 34px -10px color-mix(in srgb, var(--accent) 55%, transparent); }
+.peer-av { transition: transform .35s cubic-bezier(.2, .9, .3, 1.2), box-shadow .35s; }
+.peer.busy .peer-ring { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 70%, transparent)); }
+
+/* A ring that leaves the orb when a device appears. */
+.ping {
+  position: fixed; left: 0; top: 0; width: 120px; height: 120px; margin: -60px 0 0 -60px; z-index: 1;
+  border-radius: 50%; pointer-events: none;
+  border: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  animation: ping 1.3s var(--glide) forwards;
+}
+@keyframes ping { from { scale: .6; opacity: .9; } to { scale: 3.2; opacity: 0; } }
+
+/* While anything moves, the radar pulses faster. */
+.stage.moving .rings span { animation-duration: 2.4s; border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* Sparks: what flies between you and a device while a transfer runs, and
+   the burst when it lands. Positioned by app.js. */
+.spark {
+  position: fixed; left: 0; top: 0; width: 14px; height: 14px; margin: -7px 0 0 -7px; z-index: 30;
+  border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, #fff 0 35%, var(--accent) 75%);
+  box-shadow: 0 0 16px 6px color-mix(in srgb, var(--accent) 70%, transparent), 0 0 4px 1px #fff;
+}
+.spark.ok {
+  width: 10px; height: 10px; margin: -5px 0 0 -5px;
+  background: radial-gradient(circle, #fff 0 35%, var(--ok-dot) 75%);
+  box-shadow: 0 0 12px 4px color-mix(in srgb, var(--ok-dot) 70%, transparent);
+}
+.catch { animation: catch .55s var(--spring); }
+@keyframes catch { 40% { scale: 1.14; } }
+
+/* Transfer rows: land softly; the bar shimmers while bytes move; a finished
+   row draws its tick, a failed one shakes its head. */
+.row { animation: row-in .6s var(--spring) both; }
+@keyframes row-in { from { opacity: 0; transform: translateY(-10px) scale(.98); filter: blur(4px); } }
+.row.active .fill {
+  background: linear-gradient(90deg, var(--accent) 0 35%, color-mix(in srgb, var(--accent) 45%, #fff) 50%, var(--accent) 65% 100%);
+  background-size: 250% 100%; animation: shimmer 1.6s linear infinite;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+.row.done .row-ic { animation: catch .6s var(--spring); }
+.row-ic .tick path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .5s .1s var(--glide) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.row.failed .row-ic { animation: shake .45s ease; }
+@keyframes shake { 20%, 60% { translate: -4px 0; } 40%, 80% { translate: 4px 0; } }
+.row.text.done.in { animation: row-in .6s var(--spring) both, glow 1.8s ease .2s; }
+@keyframes glow { 30% { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--accent) 8%, transparent); } }
+
+/* The theme switch: the chosen one's fill slides across (--k from app.js). */
+.seg::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 34px; height: 28px; border-radius: 8px;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--accent-face), var(--accent)) padding-box,
+    linear-gradient(rgba(255, 255, 255, .28), rgba(0, 0, 0, .18)) border-box,
+    linear-gradient(var(--accent), var(--accent)) border-box;
+  translate: calc(var(--k, 2) * 34px) 0; transition: translate .5s var(--spring);
+}
+.seg button { position: relative; z-index: 1; transition: color .3s; }
+.seg button[aria-pressed="true"] { background: none; border-color: transparent; }
+
+/* The theme change itself sweeps out from the button as a circle (app.js). */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+/* Dialogs: the backdrop fades, the content follows the sheet in, and it
+   all sinks away again on close (dialog.closing, from app.js). */
+dialog[open]::backdrop { animation: fade .35s ease both; }
+dialog[open] .dlg-body > * { animation: rise .55s var(--glide) both; }
+dialog[open] .dlg-body > :nth-child(2) { animation-delay: .04s; }
+dialog[open] .dlg-body > :nth-child(3) { animation-delay: .08s; }
+dialog[open] .dlg-body > :nth-child(4) { animation-delay: .12s; }
+dialog[open] .dlg-body > :nth-child(5) { animation-delay: .16s; }
+dialog[open] .dlg-body > :nth-child(n+6) { animation-delay: .2s; }
+dialog.closing { animation: sheet-out .24s ease-in both; }
+dialog.closing::backdrop { animation: fade-out .24s ease-in both; }
+@keyframes sheet-out { to { opacity: 0; transform: translateY(10px) scale(.97); } }
+
+/* Dropping files: the card springs up and its arrow bobs. */
+.drop-overlay { animation: fade .25s ease both; }
+.drop-overlay > div { animation: rise .45s var(--spring) both; }
+.drop-glyph svg { animation: bob 1.4s ease-in-out infinite; }
+@keyframes bob { 50% { translate: 0 5px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

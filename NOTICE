@@ -1,0 +1,23 @@
+Ferry
+Copyright (C) 2026 Luitlabs
+
+Ferry is licensed under the GNU Affero General Public License, version 3
+(see LICENSE). The Ferry name and logo are not licensed (see TRADEMARKS.md).
+
+This repository includes or depends on third-party software under its own terms:
+
+- Inter typeface (native-android/app/src/main/res/font/inter_variable.ttf)
+  Copyright (c) 2016 The Inter Project Authors
+  SIL Open Font License 1.1 (see licenses/Inter-OFL-1.1.txt)
+
+Android app dependencies, fetched at build time, not included here:
+- stream-webrtc-android (io.getstream), Apache License 2.0;
+  it packages Google's WebRTC, BSD 3-Clause
+- OkHttp (com.squareup.okhttp3), Apache License 2.0
+- AndroidX, Jetpack Compose, Kotlin, kotlinx.coroutines, Apache License 2.0
+- Test only: JUnit (EPL 1.0), Robolectric (MIT), Roborazzi (Apache 2.0),
+  org.json (Public Domain)
+
+Server and tooling, fetched at build time, not included here:
+- Wrangler (Cloudflare), MIT OR Apache-2.0
+- Playwright (tests), Apache License 2.0

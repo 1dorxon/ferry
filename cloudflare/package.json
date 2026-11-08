@@ -1,0 +1,7 @@
+{
+  "name": "browserdrop-worker",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "wrangler dev", "deploy": "./deploy.sh" },
+  "devDependencies": { "wrangler": "^4" }
+}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Ferry</title>
+<link rel="stylesheet" href="panel.css">
+<script src="theme.js"></script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="brand"><img src="img/logo.webp" width="24" height="24" alt="">Ferry</div>
+  <div class="seg" id="theme" role="group" aria-label="Theme">
+    <button type="button" data-theme="light" title="Light" aria-label="Light"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg></button>
+    <button type="button" data-theme="dark" title="Dark" aria-label="Dark"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M20.5 13.6A8.5 8.5 0 1 1 10.4 3.5a6.6 6.6 0 0 0 10.1 10.1z"/></svg></button>
+    <button type="button" data-theme="auto" title="Automatic (follows your system)" aria-label="Automatic">A</button>
+  </div>
+</header>
+
+<main>
+  <section class="me card">
+    <img class="me-art" id="me-art" src="img/dev-desktop.webp" width="56" height="56" alt="">
+    <div class="me-main">
+      <div class="cap">This computer</div>
+      <button type="button" class="me-name" id="me-name" title="Rename this computer"><span id="me-name-text">…</span><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20l.6-3.6 11-11 3 3-11 11L4 20zM13.6 7.4l3 3"/></svg></button>
+      <input class="me-edit" id="me-edit" maxlength="32" aria-label="Computer name" autocomplete="off" hidden>
+      <div class="me-sub"><span class="dot" id="dot"></span><span id="status-text">Connecting…</span></div>
+    </div>
+  </section>
+
+  <h2>Nearby</h2>
+  <div class="peers" id="peers"></div>
+  <div class="empty card" id="empty">
+    <div class="radar" aria-hidden="true"><span></span><span></span><img src="img/dev-phone.webp" alt=""></div>
+    <b>Looking for devices…</b>
+    <p>On your phone, open <b>ferry.luitlabs.in</b> or the Ferry app, on the same Wi-Fi as this computer.</p>
+  </div>
+
+  <section class="compose card" id="compose" hidden>
+    <button type="button" class="icon-btn" id="compose-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>
+    </button>
+    <b>Send text</b>
+    <p>Paste (Ctrl+V) or type. On the other device, one tap copies it.</p>
+    <form id="compose-form" autocomplete="off">
+      <textarea id="compose-text" rows="5" placeholder="Paste or type here" aria-label="Text to send"></textarea>
+      <div class="compose-to" id="compose-to" role="radiogroup" aria-label="Send to"></div>
+      <div class="compose-foot">
+        <span class="mono" id="compose-count"></span>
+        <button type="submit" class="btn primary big" id="compose-send">Send</button>
+      </div>
+    </form>
+  </section>
+
+  <p class="pair-line">
+    <span class="pair-chip plain" id="pair-chip" hidden>Paired · code <b id="pair-chip-code"></b> <button type="button" class="link" id="pair-stop">Stop</button></span>
+    <button type="button" class="link" id="pair-link">Don't see your device? Pair with a code</button>
+  </p>
+
+  <section class="pair card" id="pair" hidden>
+    <button type="button" class="icon-btn" id="pair-close" aria-label="Close">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>
+    </button>
+    <b>Pair with a code</b>
+    <p>On your other device, open Ferry and enter this code.</p>
+    <div class="pair-code" id="pair-code">––– –––</div>
+    <p class="pair-status" id="pair-status"></p>
+    <div class="divider"><span>or enter a code from the other device</span></div>
+    <form class="pair-join" id="pair-join" autocomplete="off">
+      <input id="pair-input" inputmode="numeric" maxlength="7" placeholder="123 456" aria-label="Code from the other device">
+      <button type="submit" class="btn primary big">Join</button>
+    </form>
+    <p class="note">Both devices still need to be on the same Wi-Fi to send files.</p>
+  </section>
+
+  <section id="transfers-wrap" hidden>
+    <div class="h2-row"><h2>Transfers</h2><button type="button" class="link" id="clear">Clear</button></div>
+    <div class="transfers card" id="transfers"></div>
+  </section>
+
+  <section class="tip card" id="speed-tip" hidden>
+    <b>Faster on 5 GHz Wi-Fi</b>
+    <p>That transfer ran at <b id="speed-tip-rate"></b>. If your router has a 5 GHz network (often named with "5G"), connect both devices to it — transfers are usually 3–5× faster.</p>
+    <button type="button" class="btn plain" id="speed-tip-ok">Got it</button>
+  </section>
+
+  <footer class="foot">
+    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+    Files and text go straight between devices on this network. Nothing is uploaded or stored. Ferry keeps running while Chrome is open, so your phone can send here any time.
+  </footer>
+</main>
+
+<input type="file" id="file-input" multiple hidden>
+<div class="drop" id="drop" hidden><div id="drop-text">Drop on a device to send</div></div>
+
+<script src="panel.js" type="module"></script>
+</body>
+</html>

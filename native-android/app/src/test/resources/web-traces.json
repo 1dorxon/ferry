@@ -1,0 +1,118 @@
+{
+ "accept": {
+  "sender": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"file\",\"id\":\"f1\",\"name\":\"accept.bin\",\"size\":3145851,\"type\":\"application/octet-stream\"}"
+   },
+   {
+    "k": "bins",
+    "n": 13,
+    "first": 0,
+    "last": 3133344,
+    "lens": [
+     12507,
+     261112
+    ]
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"sent\",\"id\":\"f1\",\"size\":3145851,\"chunk\":261112}"
+   }
+  ],
+  "receiver": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"accept\",\"id\":\"f1\"}"
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"got\",\"id\":\"f1\"}"
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"got\",\"id\":\"f1\"}"
+   }
+  ]
+ },
+ "decline": {
+  "sender": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"file\",\"id\":\"f1\",\"name\":\"decline.bin\",\"size\":1000,\"type\":\"application/octet-stream\"}"
+   }
+  ],
+  "receiver": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"reject\",\"id\":\"f1\"}"
+   }
+  ]
+ },
+ "sender_cancel_waiting": {
+  "sender": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"file\",\"id\":\"f1\",\"name\":\"sender_cancel_waiting.bin\",\"size\":1000,\"type\":\"application/octet-stream\"}"
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"cancel\"}"
+   }
+  ],
+  "receiver": []
+ },
+ "receiver_cancel_mid": {
+  "sender": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"file\",\"id\":\"f1\",\"name\":\"receiver_cancel_mid.bin\",\"size\":419430400,\"type\":\"application/octet-stream\"}"
+   },
+   {
+    "k": "bins",
+    "n": 186,
+    "first": 0,
+    "last": 48305720,
+    "lens": [
+     261112
+    ]
+   }
+  ],
+  "receiver": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"accept\",\"id\":\"f1\"}"
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"cancel\"}"
+   }
+  ]
+ },
+ "empty": {
+  "sender": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"file\",\"id\":\"f1\",\"name\":\"empty.bin\",\"size\":0,\"type\":\"application/octet-stream\"}"
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"sent\",\"id\":\"f1\",\"size\":0,\"chunk\":261112}"
+   }
+  ],
+  "receiver": [
+   {
+    "k": "text",
+    "d": "{\"t\":\"accept\",\"id\":\"f1\"}"
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"got\",\"id\":\"f1\"}"
+   },
+   {
+    "k": "text",
+    "d": "{\"t\":\"got\",\"id\":\"f1\"}"
+   }
+  ]
+ }
+}

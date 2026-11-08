@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Privacy · Ferry</title>
+<link rel="canonical" href="https://ferry.luitlabs.in/privacy">
+<meta name="description" content="What Ferry does and does not do with your data.">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/fav-32.png">
+<meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<style>
+  :root {
+    --bg: #f5f5f7; --card: #fff; --fg: #1d1d1f; --fg-2: #6e6e73; --stroke: rgba(0,0,0,.08); --accent: #0071e3;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI Variable Text", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #000; --card: #1c1c1e; --fg: #f5f5f7; --fg-2: #a1a1a6; --stroke: rgba(255,255,255,.1); --accent: #0a84ff; }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--font); letter-spacing: -.01em; -webkit-font-smoothing: antialiased; }
+  main { max-width: 720px; margin: 0 auto; padding: calc(32px + env(safe-area-inset-top)) 20px calc(48px + env(safe-area-inset-bottom)); }
+  .brand { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-weight: 600; font-size: 17px; margin-bottom: 28px; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  h1 { font-size: 34px; line-height: 1.15; letter-spacing: -.03em; }
+  .date { color: var(--fg-2); font-size: 14px; margin: 6px 0 24px; }
+  .card { background: var(--card); border: 1px solid var(--stroke); border-radius: 22px; padding: 22px 22px 6px; margin-bottom: 16px; }
+  .lede { font-size: 18px; }
+  h2 { font-size: 19px; letter-spacing: -.02em; margin-bottom: 8px; }
+  p, li { color: var(--fg-2); margin-bottom: 14px; }
+  b { color: var(--fg); font-weight: 600; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 8px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <a class="brand" href="/"><img src="/img/logo.webp" alt="" width="28" height="28">Ferry</a>
+  <h1>Privacy</h1>
+  <p class="date">Effective 26 October 2026. Applies to Ferry (formerly BrowserDrop): the website at ferry.luitlabs.in (and its earlier addresses ferry.dorxon.com and drop.dorxon.com), the Ferry Android app and the Ferry extension for Chrome.</p>
+
+  <div class="card">
+    <p class="lede"><b>Your files and text never touch our servers.</b> They go straight from one device to the other over your own network, encrypted in transit. We don't upload them, see them, or store them. There are no accounts, no ads, no analytics and no tracking.</p>
+  </div>
+
+  <div class="card">
+    <h2>What the server sees while you're connected</h2>
+    <p>To introduce your devices to each other, the page keeps a connection to a small coordination server (run on Cloudflare). While the page is open, that server holds, in memory only:</p>
+    <ul>
+      <li><b>The device name shown on screen</b> — a random one like "Amber Otter", or one you typed.</li>
+      <li><b>The device type</b> (iPhone, Android, Mac, Windows…), worked out from your browser.</li>
+      <li><b>A random identifier</b> for the open page, so a brief disconnect doesn't make you a stranger.</li>
+    </ul>
+    <p>It also passes along the short technical messages two devices exchange to set up a direct connection. These describe how to reach each device on the local network; they contain no file contents.</p>
+    <p>Everything above is discarded when you close the page. None of it is written to a database or kept in logs by us.</p>
+  </div>
+
+  <div class="card">
+    <h2>Text and links you send</h2>
+    <p>Text you paste into Ferry to send (the clipboard feature) travels the same way as files: straight to the device you picked, over your own network, never through our server. It stays in Ferry's transfer list on both devices until you clear it or close Ferry, and goes onto the other device's clipboard only when someone there taps Copy. Ferry reads your clipboard only when you tap Paste.</p>
+  </div>
+
+  <div class="card">
+    <h2>Your IP address</h2>
+    <p>Devices find each other by sharing a public IP address — that's what "on the same network" means here. When you connect, the server turns your IP address into a one-way keyed code and uses that code to group you with the other devices on your network. The address itself isn't stored, and the code can't be turned back into it.</p>
+  </div>
+
+  <div class="card">
+    <h2>What stays on your device</h2>
+    <ul>
+      <li>Your chosen device name, so it's there next time.</li>
+      <li>The random page identifier, until the tab closes.</li>
+      <li>On Android, files you share into Ferry from another app wait in the app's own storage until you send or discard them.</li>
+    </ul>
+    <p>You can clear all of this by clearing the site's data in your browser, or the app's storage in Android settings.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Android app</h2>
+    <p>The app works exactly like the website and talks to the same coordination server. It collects nothing beyond what's described above. On Android it can do a few things a web page can't, and asks only for what those need:</p>
+    <ul>
+      <li><b>Your device name.</b> It shows others the name your phone already has (Settings › About phone), which you can change in the app. It's sent to the coordination server only while the app is connected, as above.</li>
+      <li><b>Notifications</b> — to show transfer progress, to tell you when a nearby device wants to send you a file, and to offer Copy when it sends text.</li>
+      <li><b>The clipboard</b> — read only when you tap Paste, and written only when you tap Copy.</li>
+      <li><b>Running in the background</b> — only while a transfer is in progress, so it finishes with the screen off.</li>
+      <li><b>Your Wi-Fi band</b> — whether the phone is on 2.4 GHz or 5 GHz, to suggest the faster network when transfers are slow. It's read on the phone and never sent anywhere; the app doesn't read your network's name.</li>
+      <li><b>Saving files</b> — files you accept are saved to Downloads › Ferry. The app reads only the files you choose to send.</li>
+    </ul>
+    <p>It doesn't access your contacts, location, camera or microphone.</p>
+  </div>
+
+  <div class="card">
+    <h2>The Chrome extension</h2>
+    <p>The extension works like the website and talks to the same coordination server. It collects nothing beyond what's described above. It differs in a few ways, and asks only for what those need:</p>
+    <ul>
+      <li><b>It stays connected while Chrome is open</b>, so your phone can send to this computer without a Ferry tab. The server therefore holds this computer's name, type and identifier for as long as Chrome runs, not just while a page is open. The identifier is kept on the computer, so it's the same device after a restart.</li>
+      <li><b>Notifications</b> — to ask you to Accept or Decline when a nearby device wants to send you a file, and to offer Copy when it sends text.</li>
+      <li><b>Writing to the clipboard</b> — only when you press Copy on text a device sent you. It never reads your clipboard; to send text, you paste it in yourself.</li>
+      <li><b>Downloads</b> — files you accept are saved to your Downloads folder. While a file arrives it's written to the extension's own storage on this computer, and that copy is deleted once it's in Downloads.</li>
+      <li><b>Access to ferry.luitlabs.in</b> — the coordination server, and the only site it talks to. It can't read or change any website you visit, and doesn't see your browsing.</li>
+    </ul>
+    <p>It reads only the files you choose to send. Removing the extension removes everything it kept.</p>
+  </div>
+
+  <div class="card">
+    <h2>Who else is involved</h2>
+    <p>The website and coordination server run on Cloudflare, which carries the traffic and may process IP addresses to deliver and protect the service, under <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare's privacy policy</a>. Nothing is sold or shared with anyone else.</p>
+  </div>
+
+  <div class="card">
+    <h2>Accepting files</h2>
+    <p>Nothing is ever received without your say-so: every incoming file asks you to Accept or Decline first. Only accept files from people you know.</p>
+  </div>
+
+  <div class="card">
+    <h2>Children</h2>
+    <p>Ferry isn't directed at children under 13 and doesn't knowingly collect anything from them — or from anyone.</p>
+  </div>
+
+  <div class="card">
+    <h2>Changes and contact</h2>
+    <p>If this policy changes, the new version will be posted here with a new date. Questions: write to the developer at the contact email shown on Ferry's Google Play listing.</p>
+  </div>
+</main>
+</body>
+</html>

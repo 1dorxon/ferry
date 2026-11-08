@@ -1,0 +1,41 @@
+{
+  // BrowserDrop on Cloudflare: static pages from Workers Static Assets, signalling
+  // in one Durable Object per room (= per network). File bytes never pass through.
+  //
+  // BILLING: built to run entirely inside the Workers FREE plan, which never
+  // bills -- past a daily limit Cloudflare returns error 1027 instead. Nothing
+  // here may add a paid feature: no KV, R2, Queues, AI, Analytics Engine, and
+  // Durable Objects use the SQLite backend the Free plan includes.
+  "name": "browserdrop",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-10-01",
+  "workers_dev": true,
+  // Hostnames: ferry.luitlabs.in (the address since 2026-10-26), ferry.dorxon.com
+  // (forwards its homepage to it, still serves signalling for older builds) and
+  // drop.dorxon.com (the original, kept for the old Android TWA). Each is a zone
+  // ROUTE (<host>/* -> browserdrop) plus a proxied placeholder DNS record
+  // (AAAA 100::), created once via the API. It is deliberately NOT listed here: wrangler re-registers listed
+  // routes through an endpoint this deploy token is refused, and the route needs
+  // no re-registering anyway. Routes fail closed: past the Free plan's daily
+  // limit the page returns error 1027, never anything billable.
+  "assets": {
+    "directory": "../public",
+    "binding": "ASSETS",
+    // Only these hit the Worker; every other file is served as a static asset.
+    "run_worker_first": ["/", "/index.html", "/ws", "/api/*", "/share"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "ROOMS", "class_name": "Room" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }],
+  // Logs off: they are a separately metered feature.
+  "observability": { "enabled": false },
+  "vars": {
+    // Kill switch. "1" refuses all signalling (and so all transfers) without a redeploy of code.
+    "DISABLED": "0",
+    // Web origins besides Ferry's own page that may open signalling sockets
+    // (comma-separated; a trailing * matches a prefix). The Chrome Web Store
+    // extension. Local extension tests: --var ALLOWED_ORIGINS:chrome-extension://*
+    "ALLOWED_ORIGINS": "chrome-extension://aigfljpajgonlpcmpgdppnpnbdggcakn"
+  }
+}

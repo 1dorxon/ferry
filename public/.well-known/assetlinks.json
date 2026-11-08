@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.dorxon.browserdrop",
+    "sha256_cert_fingerprints": ["02:9F:22:D1:F0:D1:8B:FC:C8:0B:82:BB:1B:CA:DA:EA:AE:EC:46:F2:00:80:FA:7A:23:41:F1:E7:5B:86:50:3A"]
+  }
+}]

@@ -1,0 +1,49 @@
+/* Ferry's guide pages (the how-to pages search engines link to). Same look as
+   privacy.html; light and dark follow the device. */
+:root {
+  --bg: #f5f5f7; --card: #fff; --fg: #1d1d1f; --fg-2: #6e6e73; --stroke: rgba(0,0,0,.08); --accent: #0071e3;
+  --accent-face: #1f80e6; --tint: rgba(0,113,227,.08);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI Variable Text", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #000; --card: #1c1c1e; --fg: #f5f5f7; --fg-2: #a1a1a6; --stroke: rgba(255,255,255,.1); --accent: #0a84ff;
+          --accent-face: #2891ff; --tint: rgba(10,132,255,.14); }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--fg); font: 16px/1.6 var(--font); letter-spacing: -.01em; -webkit-font-smoothing: antialiased; }
+main { max-width: 720px; margin: 0 auto; padding: calc(32px + env(safe-area-inset-top)) 20px calc(48px + env(safe-area-inset-bottom)); }
+.brand { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-weight: 600; font-size: 17px; margin-bottom: 28px; }
+.brand img { width: 28px; height: 28px; border-radius: 7px; }
+h1 { font-size: clamp(30px, 6vw, 40px); line-height: 1.12; letter-spacing: -.03em; }
+.lede { font-size: 18px; color: var(--fg-2); margin: 14px 0 22px; }
+.cta {
+  display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: 12px;
+  color: #fff; font-weight: 600; text-decoration: none;
+  background: linear-gradient(var(--accent-face), var(--accent));
+  box-shadow: 0 8px 22px -10px var(--accent);
+}
+.cta:hover { filter: brightness(1.06); }
+.cta-note { display: block; color: var(--fg-2); font-size: 14px; margin-top: 10px; }
+.card { background: var(--card); border: 1px solid var(--stroke); border-radius: 22px; padding: 22px 22px 8px; margin-top: 18px; }
+h2 { font-size: 21px; letter-spacing: -.02em; margin-bottom: 10px; }
+p, li { color: var(--fg-2); margin-bottom: 14px; }
+b, strong { color: var(--fg); font-weight: 600; }
+ul, ol { padding-left: 22px; }
+li { margin-bottom: 8px; }
+ol.steps { list-style: none; padding: 0; counter-reset: s; }
+ol.steps li { position: relative; padding-left: 40px; counter-increment: s; }
+ol.steps li::before {
+  content: counter(s); position: absolute; left: 0; top: 1px; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--accent); background: var(--tint);
+}
+details { border-top: 1px solid var(--stroke); padding: 12px 0; }
+details:first-of-type { border-top: 0; padding-top: 2px; }
+summary { cursor: pointer; font-weight: 600; color: var(--fg); list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; float: right; color: var(--fg-2); font-weight: 400; }
+details[open] summary::after { content: "−"; }
+details p { margin: 8px 0 4px; }
+a { color: var(--accent); }
+.more { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; padding-bottom: 14px; }
+.more a { display: block; padding: 12px 14px; border-radius: 12px; background: var(--tint); text-decoration: none; font-weight: 500; font-size: 15px; }
+footer { color: var(--fg-2); font-size: 13px; text-align: center; margin-top: 28px; }

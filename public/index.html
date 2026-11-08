@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Ferry: Send Files Between Phones and Computers on Wi-Fi</title>
+<meta name="description" content="Send files and text between iPhone, Android, Mac and Windows on the same Wi-Fi. Straight from device to device: nothing is uploaded, no app, no sign-up.">
+<link rel="canonical" href="https://ferry.luitlabs.in/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ferry">
+<meta property="og:title" content="Ferry: send files to nearby devices">
+<meta property="og:description" content="Send files and text between iPhone, Android, Mac and Windows on the same Wi-Fi. Straight from device to device: nothing is uploaded, no sign-up.">
+<meta property="og:url" content="https://ferry.luitlabs.in/">
+<meta property="og:image" content="https://ferry.luitlabs.in/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Ferry", "url": "https://ferry.luitlabs.in/", "description": "Send files and text between nearby phones and computers on the same Wi-Fi, straight from device to device. Nothing is uploaded.", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Windows, macOS, Linux, ChromeOS, iOS, Android", "browserRequirements": "Requires a modern browser with WebRTC", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "image": "https://ferry.luitlabs.in/img/og.jpg", "sameAs": ["https://chromewebstore.google.com/detail/ferry-send-files-nearby/aigfljpajgonlpcmpgdppnpnbdggcakn"]}</script>
+<meta name="apple-mobile-web-app-title" content="Ferry">
+<meta name="application-name" content="Ferry">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Apple devices render the real San Francisco via -apple-system; Inter is the
+     stand-in everywhere else (Windows, Android), loaded only as a fallback. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" id="fav" type="image/png" sizes="32x32" href="/icons/fav-32.png">
+<meta name="theme-color" content="#f6f5f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0b0c" media="(prefers-color-scheme: dark)">
+<meta name="bd-version" content="">
+<script>
+  /* Light / dark / automatic, applied before the first paint. */
+  (function () {
+    var t = 'auto';
+    try { t = localStorage.getItem('bd.theme') || 'auto'; } catch (e) {}
+    if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+    document.documentElement.classList.add('entering');   /* first-load choreography, style.css */
+  })();
+</script>
+</head>
+<body>
+
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<header class="nav">
+  <div class="brand">
+    <img class="brand-mark" src="/img/logo.webp" width="28" height="28" alt="">
+    Ferry
+  </div>
+  <div class="nav-right">
+    <div class="seg" id="theme" role="group" aria-label="Theme">
+      <button type="button" data-theme="light" title="Light" aria-label="Light"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg></button>
+      <button type="button" data-theme="dark" title="Dark" aria-label="Dark"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M20.5 13.6A8.5 8.5 0 1 1 10.4 3.5a6.6 6.6 0 0 0 10.1 10.1z"/></svg></button>
+      <button type="button" data-theme="auto" title="Automatic (follows your device)" aria-label="Automatic">A</button>
+    </div>
+    <span class="status"><span class="dot" id="conn-dot"></span><span id="me-sub">Connecting…</span></span>
+    <button type="button" class="icon-btn" id="btn-shortcut" aria-label="About Ferry">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><circle cx="12" cy="7.6" r=".6" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="stage" id="stage" aria-label="Devices on this network">
+    <div class="rings" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="me">
+      <div class="me-orb"><img class="orb-img" src="/img/orb.webp" alt="" width="384" height="384"><span class="me-icon" id="me-icon"></span></div>
+      <div class="me-name" id="me-name" role="button" tabindex="0" title="Rename this device">…</div>
+      <div class="me-cap" id="me-cap">This device</div>
+    </div>
+    <div id="peers" class="peers"></div>
+  </section>
+
+  <!-- Under the radar on phones; beside it on wider screens (style.css). -->
+  <div class="side" id="side">
+    <div class="share-banner glass" id="share-banner" hidden>
+      <div class="share-glyph" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>
+      </div>
+      <div class="share-text">
+        <div class="share-title" id="share-title"></div>
+        <div class="share-sub" id="share-sub">Tap a device to send</div>
+      </div>
+      <button type="button" class="pill ghost" id="share-clear">Discard</button>
+    </div>
+
+    <p class="hint" id="peers-empty">
+      <span class="hint-title">Looking for devices…</span>
+      Open <b id="host">this page</b> on another device on the same Wi-Fi.
+    </p>
+    <p class="hint" id="idle">Tap a device to send a file, or drop one anywhere.</p>
+
+    <!-- The clipboard: paste here, copy on the other device. -->
+    <p class="clip-line" id="clip-line" hidden>
+      <button type="button" class="pill ghost" id="btn-text"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="4.5" width="12" height="16.5" rx="2"/><path d="M9.5 4.5V3h5v1.5"/><path d="M9 10h6M9 13.5h6M9 17h3.5"/></svg>Send text or a link</button>
+    </p>
+
+    <!-- Shown when nobody has appeared for a while: some networks hide devices
+         from each other (IPv4 vs IPv6, VPNs, mesh routers); a code always works. -->
+    <section id="pair-prompt" class="pair-prompt glass" hidden>
+      <div class="pair-prompt-text">
+        <b>Can't see your other device?</b>
+        <span>Some Wi-Fi setups hide devices from each other. Pair them with a code instead.</span>
+      </div>
+      <div class="pair-prompt-actions">
+        <button type="button" class="pill" data-pair>Pair with a code</button>
+        <button type="button" class="icon-btn" id="pair-prompt-x" aria-label="Dismiss">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <p class="pair-line">
+      <span id="pair-chip" class="pair-chip" hidden>Paired · code <b id="pair-chip-code"></b> <button type="button" class="link" id="pair-stop">Stop</button></span>
+      <button type="button" class="link" id="pair-link" data-pair>Don't see your device? Pair with a code</button>
+    </p>
+
+    <section id="transfers-wrap" class="sheet" hidden>
+      <h2>Transfers</h2>
+      <div id="transfers" class="transfers"></div>
+    </section>
+
+    <!-- After a slow transfer: the usual cause is 2.4 GHz Wi-Fi, not Ferry. -->
+    <section id="speed-tip" class="pair-prompt glass" hidden>
+      <div class="pair-prompt-text">
+        <b>Faster on 5 GHz Wi-Fi</b>
+        <span>That transfer ran at <b id="speed-tip-rate"></b>. If your router has a 5 GHz network (often named with "5G"), connect both devices to it — transfers are usually 3–5× faster. Keeping the devices near the router helps too.</span>
+      </div>
+      <div class="pair-prompt-actions">
+        <button type="button" class="pill ghost" id="speed-tip-ok">Got it</button>
+      </div>
+    </section>
+
+    <!-- On a computer running Chrome: the extension keeps it reachable with no tab open. -->
+    <section id="ext-card" class="pair-prompt glass ext-card" hidden>
+      <img class="ext-icon" src="/img/logo.webp" width="36" height="36" alt="">
+      <div class="pair-prompt-text">
+        <b>Ferry for Chrome</b>
+        <span>Your phone can send to this computer whenever Chrome is open, no Ferry tab needed.</span>
+      </div>
+      <div class="pair-prompt-actions">
+        <a class="pill" data-chrome-store href="https://chromewebstore.google.com/detail/ferry-send-files-nearby/aigfljpajgonlpcmpgdppnpnbdggcakn" target="_blank" rel="noopener">Add to Chrome</a>
+        <button type="button" class="icon-btn" id="ext-card-x" aria-label="Dismiss">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      Files go straight between devices on this network. Nothing is uploaded or stored.
+    </footer>
+  </div>
+</main>
+
+<input type="file" id="file-input" multiple hidden>
+<div id="drop-overlay" class="drop-overlay" hidden><div><span class="drop-glyph" aria-hidden="true">
+  <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19h14"/></svg>
+</span>Drop to send</div></div>
+
+<dialog id="dlg-pair">
+  <button type="button" class="dlg-x" data-close aria-label="Close">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>
+  </button>
+  <div class="dlg-body pair-body">
+    <h3>Pair with a code</h3>
+    <p class="lede">On your other device, open Ferry and enter this code.</p>
+    <div class="pair-code" id="pair-code" aria-live="polite">––– –––</div>
+    <p class="pair-status" id="pair-status">Waiting for the other device…</p>
+    <div class="pair-divider"><span>or enter a code from the other device</span></div>
+    <form class="pair-join" id="pair-join" autocomplete="off">
+      <input id="pair-input" inputmode="numeric" pattern="[0-9 ]*" maxlength="7" placeholder="123 456" aria-label="Code from the other device">
+      <button type="submit" class="pill">Join</button>
+    </form>
+    <p class="pair-note">Both devices still need to be on the same Wi-Fi to send files.</p>
+  </div>
+</dialog>
+
+<dialog id="dlg-text">
+  <button type="button" class="dlg-x" data-close aria-label="Close">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 7l10 10M17 7L7 17"/></svg>
+  </button>
+  <form class="dlg-body text-body" id="text-form" autocomplete="off">
+    <h3>Send text</h3>
+    <p class="lede">Paste what you copied, or type it. On the other device, one tap copies it.</p>
+    <textarea id="text-input" rows="5" placeholder="Paste or type here" aria-label="Text to send"></textarea>
+    <div class="text-meta">
+      <button type="button" class="pill ghost mini" id="text-paste">Paste</button>
+      <span id="text-count" class="mono"></span>
+    </div>
+    <div class="text-to-label">Send to</div>
+    <div class="text-to" id="text-to" role="radiogroup" aria-label="Send to"></div>
+    <div class="dlg-actions"><button type="submit" class="pill" id="text-send">Send</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlg-shortcut">
+  <button type="button" class="dlg-x" data-close aria-label="Close">
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+  </button>
+  <div class="dlg-body">
+    <img class="dlg-icon" src="/img/logo-lg.webp" width="76" height="76" alt="">
+    <h3>Ferry</h3>
+    <p class="lede">Send files between devices on the same Wi-Fi. They travel straight
+       from one device to the other — nothing is uploaded, nothing is kept.</p>
+    <h4>On an iPhone</h4>
+    <p>Open this page in Safari. It appears here as a device. Keep its tab in the
+       foreground while sending, since iOS pauses background tabs.</p>
+    <h4>On Android</h4>
+    <p>Get the Ferry app from Google Play, then use <b>Share → Ferry</b> from Photos or Files.</p>
+    <h4>On a computer</h4>
+    <p>This page works in any browser. In Chrome, add <b>Ferry for Chrome</b> from the Chrome Web Store: it sits in Chrome's side panel and keeps the computer visible to your phone whenever Chrome is open, so you can send to it without opening a tab.</p>
+    <h4>Why both devices must share a network</h4>
+    <p>Transfers never pass through a server, so the two devices have to be able to
+       reach each other directly. Guest Wi-Fi with device isolation blocks that.</p>
+    <h4>Copy here, paste there</h4>
+    <p>Tap <b>Send text or a link</b> (or just press Ctrl+V / ⌘V on this page), and it shows up on the other device with a <b>Copy</b> button. Like files, it goes straight between the devices.</p>
+    <h4>Light or dark</h4>
+    <p>The sun, moon and A buttons at the top pick light, dark, or automatic (follows your device).</p>
+    <h4>Faster transfers</h4>
+    <p>Speed is set by your Wi-Fi, not by Ferry. Connect both devices to your router's <b>5 GHz</b> network (often named with "5G") — usually 3–5× faster than 2.4 GHz — and keep them near the router. A computer on an Ethernet cable is faster still.</p>
+    <div class="dlg-actions">
+      <a class="pill ghost" href="https://play.google.com/store/apps/details?id=com.dorxon.ferry" target="_blank" rel="noopener">Get the Android app</a>
+      <a class="pill ghost" data-chrome-store href="https://chromewebstore.google.com/detail/ferry-send-files-nearby/aigfljpajgonlpcmpgdppnpnbdggcakn" target="_blank" rel="noopener">Get Ferry for Chrome</a>
+      <button type="button" class="pill" data-close>Done</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="/app.js" type="module"></script>
+</body>
+</html>
