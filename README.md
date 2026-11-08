@@ -1,66 +1,151 @@
-# Ferry
+<div align="center">
 
-Send files and text between any two devices on the same Wi‑Fi: iPhone to
-Windows, Android to Mac, phone to phone. No account, no install, nothing
-uploaded.
+<img src="docs/images/banner.webp" alt="Ferry: send files to nearby devices. iPhone, Android, Mac and Windows. Nothing uploaded. No sign-up." width="100%">
 
-**Use it:** [ferry.luitlabs.in](https://ferry.luitlabs.in) in any browser ·
-[Ferry for Android](https://play.google.com/store/apps/details?id=com.dorxon.ferry) ·
-[Ferry for Chrome](https://chromewebstore.google.com/detail/ferry-send-files-nearby/aigfljpajgonlpcmpgdppnpnbdggcakn)
+<h1>Ferry</h1>
 
-## How it works
+<p><b>AirDrop-style sharing for every device on your Wi‑Fi.</b><br>
+iPhone to Windows, Android to Mac, phone to phone. No account, no install, nothing uploaded.</p>
 
+<p>
+<a href="https://ferry.luitlabs.in"><img alt="Open in your browser" src="https://img.shields.io/badge/Web-ferry.luitlabs.in-0A84FF?style=for-the-badge&logo=googlechrome&logoColor=white"></a>
+<a href="https://play.google.com/store/apps/details?id=com.dorxon.ferry"><img alt="Get it on Google Play" src="https://img.shields.io/badge/Android-Google%20Play-34A853?style=for-the-badge&logo=googleplay&logoColor=white"></a>
+<a href="https://chromewebstore.google.com/detail/ferry-send-files-nearby/aigfljpajgonlpcmpgdppnpnbdggcakn"><img alt="Ferry for Chrome" src="https://img.shields.io/badge/Chrome-Web%20Store-F4B400?style=for-the-badge&logo=googlechrome&logoColor=white"></a>
+</p>
+
+<p>
+<a href="LICENSE"><img alt="Licence: AGPL-3.0" src="https://img.shields.io/badge/licence-AGPL--3.0-blue"></a>
+<img alt="Peer to peer over WebRTC" src="https://img.shields.io/badge/transfer-peer--to--peer%20WebRTC-8A2BE2">
+<img alt="No accounts" src="https://img.shields.io/badge/accounts-none-success">
+<img alt="Files stored on the server: zero" src="https://img.shields.io/badge/files%20on%20server-0-success">
+</p>
+
+</div>
+
+<br>
+
+<table>
+<tr>
+<td width="25%"><img src="docs/images/android-devices.webp" alt="Every device on the Wi-Fi shows up"></td>
+<td width="25%"><img src="docs/images/android-asking.webp" alt="Nothing arrives without your OK"></td>
+<td width="25%"><img src="docs/images/android-text.webp" alt="Send text and links with a Copy button"></td>
+<td width="25%"><img src="docs/images/android-dark.webp" alt="Dark mode"></td>
+</tr>
+</table>
+
+## ✨ Why Ferry
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 🌐 Works on everything
+Any browser is a Ferry device: Safari on iPhone, Chrome on Windows, Firefox on Linux. There's also a native Android app and a Chrome extension that keeps your computer ready.
+
+</td>
+<td width="33%" valign="top">
+
+### 🔒 Nothing is uploaded
+Files go straight from one device to the other over WebRTC. The server only introduces devices to each other. It has no endpoint that accepts a file and stores nothing.
+
+</td>
+<td width="33%" valign="top">
+
+### ✋ Nothing arrives uninvited
+Every file waits for the receiver to tap **Accept**. Devices only see each other on the same network, or with a short-lived 6‑digit pairing code.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### ⚡ Wi‑Fi speed
+No relay in the middle: bytes go device to device over your local network, as fast as it allows. Big files go straight to disk as they arrive, wherever the browser allows it.
+
+</td>
+<td valign="top">
+
+### 📋 A shared clipboard
+Send a link, an address or a password. It lands with a **Copy** button and never touches the clipboard until you press it.
+
+</td>
+<td valign="top">
+
+### 🪶 Tiny and free to run
+Vanilla JS with no build step. The server is one Cloudflare Worker that fits the **free plan**: it can't run up a bill.
+
+</td>
+</tr>
+</table>
+
+## 🖥️ On your computer
+
+<p align="center"><img src="docs/images/chrome.webp" alt="Ferry for Chrome: the side panel showing nearby phones and an incoming file" width="85%"></p>
+
+<p align="center"><i>Ferry for Chrome keeps your computer visible to your phones whenever Chrome is open.<br>Incoming files ask on a notification.</i></p>
+
+## 🧭 How it works
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant A as 📱 Phone
+    participant S as ☁️ Signalling Worker
+    participant B as 💻 Computer
+    A->>S: join (WebSocket)
+    B->>S: join (WebSocket)
+    Note over S: Same public IP → same room<br/>(an HMAC of the address, never stored)
+    A->>S: offer (local addresses only)
+    S->>B: offer
+    B->>S: answer
+    S->>A: answer
+    A-->>B: "photo.heic, 3.2 MB?"
+    B-->>A: Accept ✅
+    A->>B: 📦 file bytes over a WebRTC data channel, directly across your Wi‑Fi
 ```
-Device A ──WebSocket (signalling only)──► Worker ◄──WebSocket── Device B
-    └──────── WebRTC data channel: the file, directly over your Wi‑Fi ────────┘
-```
 
-- **Files only ever move between the two devices.** The server introduces
-  devices to each other (a few KB of WebRTC offers and answers) and nothing
-  else. It has no endpoint that accepts a file and stores nothing.
-- **Same network only, by construction.** No relay, no TURN, no STUN: each side
-  offers WebRTC nothing but its local addresses, so two devices connect only if
-  they can reach each other on the LAN. Nothing here can carry a transfer across
-  the internet.
-- **The network is the room.** Devices see each other when they share a public
-  IP (or IPv6 /64). The room id is an HMAC of that address with a server secret,
-  so the address is never stored. A room groups devices; it never authorises a
-  transfer: every file waits for the receiver to tap **Accept**.
-- **Networks that hide devices** (client isolation, guest Wi‑Fi) can still pair
-  with a short-lived 6-digit code.
-- **Text** (links, addresses, passwords) goes over the same channel and lands
-  with a Copy button. Nothing touches the clipboard until you press it.
+- **Same network only, by construction.** No TURN, no STUN: each side offers
+  WebRTC nothing but its local addresses, so two devices connect only if they
+  can reach each other on the LAN. Nothing here can carry a transfer across the
+  internet.
+- **The network is the room.** Devices meet when they share a public IP (or
+  IPv6 /64). The room id is a keyed HMAC of it, so the address is never stored.
+  A room only groups devices; it never authorises a transfer.
+- **Networks that hide devices** (client isolation, guest Wi‑Fi) can pair with
+  a 6‑digit code instead.
+- **Reliable transfers.** Chunks carry their byte offset. The sender paces on
+  `bufferedAmount`, and the receiver confirms every byte before the sender shows
+  **Sent**. A dropped connection says so, with **Try again**.
 
-A transfer is one data channel. Chunks carry their byte offset. The sender
-paces on `bufferedAmount`, and the receiver confirms every byte before the
-sender shows **Sent**. Large files are written to disk as they arrive, through
-the File System Access API or the browser's private storage (OPFS), never held
-in memory.
+## 📦 What's in this repo
 
-## What's here
-
-| Path | What |
+| Path | What it is |
 |---|---|
-| `public/` | The web app: vanilla JS, no build step, no dependencies |
-| `cloudflare/` | The signalling server: a Cloudflare Worker + one Durable Object per room (Free plan only) |
-| `extension/` | Ferry for Chrome (MV3): side panel + an offscreen engine that keeps the computer visible while Chrome runs |
-| `native-android/` | Ferry for Android: Kotlin + Jetpack Compose + WebRTC, speaking the web client's exact protocol |
-| `tests/` | End-to-end tests with real browsers (Playwright) |
+| [`public/`](public) | The web app: vanilla JS, no build step, no dependencies |
+| [`cloudflare/`](cloudflare) | The signalling server: one Worker + a Durable Object per room |
+| [`extension/`](extension) | Ferry for Chrome (Manifest V3): side panel + an offscreen engine |
+| [`native-android/`](native-android) | Ferry for Android: Kotlin, Jetpack Compose and WebRTC, speaking the web client's exact protocol |
+| [`tests/`](tests) | End-to-end tests with real browsers (Playwright) |
 
-## Run it locally
+## 🚀 Run it locally
 
 ```sh
 cd cloudflare && npm ci
 npx wrangler dev --port 8899 --var ALLOW_TEST_IP:1
 ```
 
-Open `http://127.0.0.1:8899/?debug` in two browser windows. `ALLOW_TEST_IP`
-lets tests pretend to be on different networks. It is for local testing only
-and must never be set in production.
+Then open **http://127.0.0.1:8899/?debug** in two browser windows and send
+yourself a file.
 
-## Tests
+> [!NOTE]
+> `ALLOW_TEST_IP` lets the tests pretend to be on different networks. It is
+> for local testing only: never set it in production.
 
-Everything runs in Docker, so nothing needs installing on the host:
+<details>
+<summary><b>🧪 Tests</b></summary>
+<br>
+
+Everything runs in Docker, so nothing needs installing:
 
 ```sh
 docker run --rm --network host --ipc=host -v "$PWD/tests:/t:ro" \
@@ -68,46 +153,55 @@ docker run --rm --network host --ipc=host -v "$PWD/tests:/t:ro" \
   sh -c "pip install -q playwright==1.49.1 && python3 /t/e2e.py 67108864 http://127.0.0.1:8899/"
 ```
 
-- `e2e.py`: a transfer between two pages; checks the bytes match and that only
-  `host` ICE candidates were used.
-- `e2e_text.py`: the clipboard feature.
-- `e2e_pair.py`: pairing codes across "networks".
-- `e2e_reconnect.py`: signalling dropping mid-transfer.
-- `e2e_lost.py`: the receiver vanishing mid-transfer.
-- `e2e_spool.py`: big files into private storage.
-- `e2e_extension.py`: the Chrome extension.
+| Test | Covers |
+|---|---|
+| `e2e.py` | A transfer between two pages: the bytes match, and only `host` ICE candidates were used |
+| `e2e_text.py` | The clipboard: long text in parts, paste to send |
+| `e2e_pair.py` | Pairing codes across "networks" |
+| `e2e_reconnect.py` | Signalling dropping mid-transfer |
+| `e2e_lost.py` | The receiver vanishing mid-transfer, then **Try again** |
+| `e2e_spool.py` | Big files written to the browser's private storage |
+| `e2e_extension.py` | The Chrome extension, both directions |
 
-Android tests (protocol sessions, conformance against recorded browser traces,
-screen renders) run on the JVM: `./gradlew testDebugUnitTest` in
-`native-android/`, or `native-android/build.sh`, which uses its own pinned build
-image.
+The Android tests run on the JVM: two protocol sessions back to back,
+conformance against message traces recorded between real browsers, and
+renders of the real screens. Run `./gradlew testDebugUnitTest` in
+`native-android/`.
 
-## Run your own
+</details>
 
-You're welcome to run your own instance. Please run your **own** Worker rather
-than pointing builds at `ferry.luitlabs.in`.
+<details>
+<summary><b>🏠 Run your own instance</b></summary>
+<br>
 
-1. **Server.** In `cloudflare/wrangler.jsonc`, set `ALLOWED_ORIGINS` to your
-   extension's id, then deploy:
-   - `npx wrangler secret put ROOM_SALT` with a long random value. Without it, a
+You're welcome to. Please run your **own** server rather than pointing builds
+at `ferry.luitlabs.in`.
+
+1. **Server**:
+   - `npx wrangler secret put ROOM_SALT` with a long random value. Without it a
      public default is used and room ids become guessable.
-   - `npx wrangler deploy`.
-   - Add a route or custom domain for your hostname. HTTPS is required: WebRTC
-     needs a secure context.
-2. **Android.** Change the `applicationId`, app name and icon. Point the server
-   URL at your host with the Gradle property `bdServer` (in
-   `gradle.properties`, or `-PbdServer=https://your.host`). Until you do, builds
-   use the placeholder `https://ferry.example` and connect nowhere. Build with your own keystore: `native-android/build.sh`
-   reads `browserdrop-android.jks` and `browserdrop-android.env`
-   (`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`) from `$FERRY_SECRETS`.
-3. **Chrome extension.** Set your server in `extension/config.js` and the
-   manifest's host permission, then load unpacked or build with
+   - In `cloudflare/wrangler.jsonc`, set `ALLOWED_ORIGINS` to your extension's id.
+   - `npx wrangler deploy`, then add a route or custom domain. HTTPS is
+     required: WebRTC needs a secure context.
+2. **Android**:
+   - Change the `applicationId`, app name and icon.
+   - Point it at your server with the Gradle property `bdServer`
+     (`-PbdServer=https://your.host`). Until you do, builds use the placeholder
+     `https://ferry.example` and connect nowhere.
+   - `native-android/build.sh` signs with `browserdrop-android.jks` and
+     `browserdrop-android.env` (`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`)
+     from `$FERRY_SECRETS`.
+3. **Chrome extension**: set your server in `extension/config.js` and the
+   manifest's host permission, then load it unpacked or build it with
    `extension/build.sh`.
 
-The name **Ferry** and its logo are not part of the licence. A fork must use its
-own name and icon. See [TRADEMARKS.md](TRADEMARKS.md).
+A fork needs its own name and icon: see [TRADEMARKS.md](TRADEMARKS.md).
 
-## Requirements and limits
+</details>
+
+<details>
+<summary><b>📶 Requirements and limits</b></summary>
+<br>
 
 - Both devices must reach each other directly on the LAN. Client isolation,
   separate VLANs and guest SSIDs block that. Use a pairing code, or a network
@@ -115,27 +209,40 @@ own name and icon. See [TRADEMARKS.md](TRADEMARKS.md).
 - Keep Ferry in front on an iPhone during a transfer. iOS suspends background
   tabs.
 
-## Why it isn't AirDrop
+</details>
 
-A browser can't appear in an iPhone's AirDrop sheet:
-- AirDrop discovery is BLE advertising, and Web Bluetooth can't advertise.
-- Its transport is AWDL, Apple's own link layer, which needs driver-level
-  access no page, and no Windows Wi-Fi driver, has.
-- It authenticates with Apple-signed device certificates.
+<details>
+<summary><b>🍎 Why it isn't AirDrop</b></summary>
+<br>
+
+A browser can't appear in an iPhone's AirDrop sheet, at any level of effort:
+
+1. **Discovery** is Bluetooth LE advertising. Web Bluetooth can scan but never
+   advertise.
+2. **Transport** is AWDL, Apple's own peer-to-peer link layer. It needs
+   driver-level access that no web page, and no Windows Wi‑Fi driver, has.
+3. **Authentication** uses Apple-signed device certificates.
 
 Ferry takes the route that works everywhere: the Wi‑Fi you're already on.
 
-## Licence
+</details>
 
-Copyright (C) 2026 Luitlabs.
+## 🤝 Contributing
 
-Ferry is free software under the **GNU Affero General Public License v3.0**
-([LICENSE](LICENSE)). You may use, study, change and share it. If you
-distribute it, or run a modified version as a service for others, you must
-offer your source under the same licence.
+Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+Found a security problem? Please report it privately: see [SECURITY.md](SECURITY.md).
 
-Third-party parts keep their own licences: see [NOTICE](NOTICE). The Ferry name
-and logo are trademarks: see [TRADEMARKS.md](TRADEMARKS.md).
+## 📄 Licence
 
-Security issues: see [SECURITY.md](SECURITY.md). Contributions: see
-[CONTRIBUTING.md](CONTRIBUTING.md).
+Copyright © 2026 Luitlabs. Ferry is free software under the
+**[GNU Affero General Public License v3.0](LICENSE)**. You may use, study,
+change and share it. If you distribute it, or run a modified version as a
+service for others, you must offer your source under the same licence.
+
+Third-party parts keep their own licences ([NOTICE](NOTICE)). The Ferry name
+and logo are trademarks of Luitlabs ([TRADEMARKS.md](TRADEMARKS.md)).
+
+<div align="center">
+<br>
+<sub>Made by Luitlabs · <a href="https://ferry.luitlabs.in">ferry.luitlabs.in</a></sub>
+</div>
